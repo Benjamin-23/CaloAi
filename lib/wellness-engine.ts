@@ -105,7 +105,7 @@ Create a specific sleep improvement plan that:
 async function generateRecommendation(prompt: string): Promise<WellnessRecommendation> {
   try {
     const result = await generateObject({
-      model: google('gemini-1.5-flash'),
+      model: google('gemini-3-flash-preview'),
       schema: recommendationSchema,
       prompt,
     });
