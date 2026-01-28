@@ -118,7 +118,7 @@ export default function Home() {
         <Alert className="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
           <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <AlertDescription className="text-blue-800 dark:text-blue-200">
-            This system demonstrates Opik's capabilities: LLM-as-Judge evaluation with safety/personalization/feasibility scoring, 
+            This system demonstrates Opik's capabilities: LLM-as-Judge evaluation with safety/personalization/feasibility scoring,
             compliance monitoring with PII detection, multi-variant experiments, and comprehensive tracing.
           </AlertDescription>
         </Alert>
@@ -133,10 +133,10 @@ export default function Home() {
 
         {/* Tabs */}
         <Tabs defaultValue="generate" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="generate">Generate Recommendations</TabsTrigger>
-            <TabsTrigger value="experiments">Run Experiments</TabsTrigger>
-            <TabsTrigger value="dashboard">Opik Dashboard</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 h-auto md:grid-cols-3 mb-6 gap-2 md:gap-0">
+            <TabsTrigger value="generate" className="h-10">Generate Recommendations</TabsTrigger>
+            <TabsTrigger value="experiments" className="h-10">Run Experiments</TabsTrigger>
+            <TabsTrigger value="dashboard" className="h-10">Opik Dashboard</TabsTrigger>
           </TabsList>
 
           {/* Generate Tab */}
@@ -214,8 +214,8 @@ export default function Home() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <WellnessForm 
-                  onSubmit={(profile) => handleRunExperiment(profile)} 
+                <WellnessForm
+                  onSubmit={(profile) => handleRunExperiment(profile)}
                   loading={experimentLoading}
                 />
               </div>

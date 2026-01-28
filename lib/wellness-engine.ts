@@ -16,6 +16,7 @@ export interface UserProfile {
   stressLevel: number; // 1-10
   sleepQuality: number; // 1-10
   preferences: string[];
+  additionalNotes?: string;
 }
 
 const recommendationSchema = z.object({
@@ -43,6 +44,7 @@ Goals: ${userProfile.goals.join(', ')}
 Available Time: ${userProfile.availableTime} minutes per day
 Health Conditions: ${userProfile.healthConditions.length > 0 ? userProfile.healthConditions.join(', ') : 'None'}
 Preferences: ${userProfile.preferences.join(', ')}
+Additional Notes: ${userProfile.additionalNotes || 'None'}
 
 Create a specific, actionable workout that:
 1. Matches their fitness level
@@ -65,6 +67,7 @@ Stress Level: ${userProfile.stressLevel}/10
 Goals: ${userProfile.goals.join(', ')}
 Available Time: ${userProfile.availableTime} minutes
 Preferences: ${userProfile.preferences.join(', ')}
+Additional Notes: ${userProfile.additionalNotes || 'None'}
 
 Create a specific meditation guide that:
 1. Matches their stress level and needs
@@ -88,6 +91,7 @@ Stress Level: ${userProfile.stressLevel}/10
 Goals: ${userProfile.goals.join(', ')}
 Health Conditions: ${userProfile.healthConditions.length > 0 ? userProfile.healthConditions.join(', ') : 'None'}
 Preferences: ${userProfile.preferences.join(', ')}
+Additional Notes: ${userProfile.additionalNotes || 'None'}
 
 Create a specific sleep improvement plan that:
 1. Targets their specific sleep issues

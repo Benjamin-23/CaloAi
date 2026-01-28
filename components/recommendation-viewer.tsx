@@ -1,8 +1,10 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle2, Clock, Zap } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Zap, Volume2, Square } from 'lucide-react';
+import { useTextToSpeech } from '@/hooks/use-text-to-speech';
 
 interface Evaluation {
   safety_score: number;
@@ -62,6 +64,24 @@ const ScoreBar = ({ score, label }: { score: number; label: string }) => {
 };
 
 export function RecommendationViewer({ recommendation, evaluation, runId }: RecommendationViewerProps) {
+  const { isSpeaking, speak, stop } = useTextToSpeech();
+
+  const handleSpeak = () => {
+    if (isSpeaking) {
+      stop();
+    } else {
+      const textToRead = `
+        ${recommendation.title}. 
+        ${recommendation.description}. 
+        Duration: ${recommendation.duration} minutes. 
+        Difficulty: ${recommendation.difficulty}. 
+        Instructions: ${recommendation.instructions.join('. ')}.
+        ${recommendation.safety_warnings.length > 0 ? 'Safety warning: ' + recommendation.safety_warnings.join('. ') : ''}
+      `;
+      speak(textToRead);
+    }
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
@@ -80,14 +100,37 @@ export function RecommendationViewer({ recommendation, evaluation, runId }: Reco
       {/* Main Recommendation Card */}
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <CardTitle className="text-2xl mb-2">{recommendation.title}</CardTitle>
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+            <div className="flex-1 space-y-2">
+              <div className="flex items-start justify-between sm:justify-start gap-3">
+                <CardTitle className="text-2xl">{recommendation.title}</CardTitle>
+                <Badge className={`${getDifficultyColor(recommendation.difficulty)} sm:hidden`}>
+                  {recommendation.difficulty.charAt(0).toUpperCase() + recommendation.difficulty.slice(1)}
+                </Badge>
+              </div>
               <CardDescription>{recommendation.description}</CardDescription>
             </div>
-            <Badge className={getDifficultyColor(recommendation.difficulty)}>
-              {recommendation.difficulty.charAt(0).toUpperCase() + recommendation.difficulty.slice(1)}
-            </Badge>
+            <div className="flex items- center gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSpeak}
+                className="gap-2 flex-1 sm:flex-none"
+              >
+                {isSpeaking ? (
+                  <>
+                    <Square className="w-4 h-4 text-red-500" /> Stop Reading
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-4 h-4" /> Read Aloud
+                  </>
+                )}
+              </Button>
+              <Badge className={`${getDifficultyColor(recommendation.difficulty)} hidden sm:inline-flex`}>
+                {recommendation.difficulty.charAt(0).toUpperCase() + recommendation.difficulty.slice(1)}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
