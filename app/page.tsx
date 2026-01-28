@@ -11,6 +11,9 @@ import { RecommendationViewer } from '@/components/recommendation-viewer';
 import { OpikDashboard } from '@/components/opik-dashboard';
 import { AlertCircle, Zap, BarChart3 } from 'lucide-react';
 
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+
 interface UserProfile {
   age: number;
   fitnessLevel: 'beginner' | 'intermediate' | 'advanced';
@@ -105,7 +108,12 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8">
-      <div className="container max-w-7xl mx-auto px-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="container max-w-7xl mx-auto px-4"
+      >
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">CaloAi - Wellness AI Evaluation System</h1>
@@ -172,10 +180,25 @@ export default function Home() {
                     runId={recommendationData.runId}
                   />
                 ) : (
-                  <Card className="h-full flex items-center justify-center">
-                    <CardContent className="text-center py-12">
-                      <p className="text-muted-foreground mb-4">Complete the wellness profile to generate a personalized recommendation</p>
-                      <p className="text-sm text-muted-foreground">
+                  <Card className="h-full overflow-hidden border-dashed">
+                    <CardContent className="h-full flex flex-col items-center justify-center p-8 text-center">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="relative w-64 h-64 mb-6"
+                      >
+                        <Image
+                          src="/images/landing.png"
+                          alt="Wellness Dashboard"
+                          fill
+                          className="object-contain"
+                          priority
+                        />
+                      </motion.div>
+                      <h3 className="text-lg font-semibold mb-2">Awaiting Your Input</h3>
+                      <p className="text-muted-foreground mb-4 max-w-md">Complete the wellness profile to generate a personalized recommendation tailored to your goals.</p>
+                      <p className="text-sm text-muted-foreground/60 max-w-sm">
                         Your recommendation will be evaluated by our LLM-as-Judge system across safety, personalization, and feasibility.
                       </p>
                     </CardContent>
@@ -288,7 +311,7 @@ export default function Home() {
             <OpikDashboard autoRefresh={true} refreshInterval={3000} />
           </TabsContent>
         </Tabs>
-      </div>
+      </motion.div>
     </main>
   );
 }

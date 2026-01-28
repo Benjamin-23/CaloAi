@@ -8,6 +8,8 @@ import { Slider } from "@/components/ui/slider"
 import { UserProfile } from "@/lib/wellness-engine"
 import { ScheduledWorkout, ScheduleContext } from "@/lib/exercise-engine"
 import { Checkbox } from "@/components/ui/checkbox"
+import { motion } from "framer-motion"
+import Image from "next/image"
 import { Loader2, Calendar, CheckCircle } from "lucide-react"
 
 export function ExerciseView() {
@@ -64,9 +66,22 @@ export function ExerciseView() {
     }
 
     return (
-        <div className="grid md:grid-cols-2 gap-8">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="grid md:grid-cols-2 gap-8"
+        >
             <div className="space-y-6">
-                <Card>
+                <Card className="overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 opacity-5 pointer-events-none">
+                        <Image
+                            src="/images/schedule.png"
+                            alt="Schedule Background"
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
                     <CardHeader>
                         <CardTitle>Schedule & Recovery</CardTitle>
                         <CardDescription>
@@ -97,7 +112,12 @@ export function ExerciseView() {
                                     "Friday 07:00 AM",
                                     "Saturday 10:00 AM"
                                 ].map((slot) => (
-                                    <div key={slot} className="flex items-center space-x-2">
+                                    <motion.div
+                                        key={slot}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="flex items-center space-x-2"
+                                    >
                                         <Checkbox
                                             id={slot}
                                             checked={availableSlots.includes(slot)}
@@ -106,8 +126,8 @@ export function ExerciseView() {
                                                 else setAvailableSlots(availableSlots.filter(s => s !== slot))
                                             }}
                                         />
-                                        <label htmlFor={slot} className="text-sm cursor-pointer">{slot}</label>
-                                    </div>
+                                        <label htmlFor={slot} className="text-sm cursor-pointer select-none">{slot}</label>
+                                    </motion.div>
                                 ))}
                             </div>
                         </div>
@@ -122,55 +142,84 @@ export function ExerciseView() {
 
             <div className="space-y-6">
                 {result ? (
-                    <Card className="h-full border-primary/20 bg-muted/10">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Calendar className="h-5 w-5 text-primary" />
-                                {result.planName}
-                            </CardTitle>
-                            <CardDescription>{result.rationale}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {result.adjustmentNote && (
-                                <div className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 p-3 rounded-md text-sm border border-yellow-500/20">
-                                    <strong>Adjustment:</strong> {result.adjustmentNote}
-                                </div>
-                            )}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <Card className="h-full border-primary/20 bg-muted/10">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Calendar className="h-5 w-5 text-primary" />
+                                    {result.planName}
+                                </CardTitle>
+                                <CardDescription>{result.rationale}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {result.adjustmentNote && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 p-3 rounded-md text-sm border border-yellow-500/20"
+                                    >
+                                        <strong>Adjustment:</strong> {result.adjustmentNote}
+                                    </motion.div>
+                                )}
 
-                            <div className="space-y-4">
-                                {result.schedule.map((item, i) => (
-                                    <div key={i} className="flex gap-4 p-4 rounded-lg border bg-card/50 hover:bg-card/80 transition-colors">
-                                        <div className="min-w-[80px] text-sm font-medium text-muted-foreground">
-                                            {item.day}<br />{item.time}
-                                        </div>
-                                        <div className="flex-1 space-y-1">
-                                            <h4 className="font-semibold text-foreground">{item.activity}</h4>
-                                            <p className="text-sm text-muted-foreground">{item.duration} mins • {item.bookingAction.replace('_', ' ')}</p>
-                                        </div>
-                                        <div>
-                                            {item.bookingAction === 'book_class' && (
-                                                <div className="px-2 py-1 bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded text-xs font-semibold">
-                                                    Booked
-                                                </div>
-                                            )}
-                                            {item.bookingAction === 'set_reminder' && (
-                                                <div className="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs font-semibold">
-                                                    Reminder Set
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                                <div className="space-y-4">
+                                    {result.schedule.map((item, i) => (
+                                        <motion.div
+                                            key={i}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.1 }}
+                                            className="flex gap-4 p-4 rounded-lg border bg-card/50 hover:bg-card/80 transition-colors"
+                                        >
+                                            <div className="min-w-[80px] text-sm font-medium text-muted-foreground">
+                                                {item.day}<br />{item.time}
+                                            </div>
+                                            <div className="flex-1 space-y-1">
+                                                <h4 className="font-semibold text-foreground">{item.activity}</h4>
+                                                <p className="text-sm text-muted-foreground">{item.duration} mins • {item.bookingAction.replace('_', ' ')}</p>
+                                            </div>
+                                            <div>
+                                                {item.bookingAction === 'book_class' && (
+                                                    <div className="px-2 py-1 bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded text-xs font-semibold">
+                                                        Booked
+                                                    </div>
+                                                )}
+                                                {item.bookingAction === 'set_reminder' && (
+                                                    <div className="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs font-semibold">
+                                                        Reminder Set
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-2 border-dashed rounded-xl">
-                        <Calendar className="h-12 w-12 mb-4 opacity-20" />
-                        <p>Configure your schedule and missed workouts to generate an adaptive plan.</p>
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-2 border-dashed rounded-xl bg-gradient-to-br from-white/50 to-purple-50/30 dark:from-black/20 dark:to-purple-900/10"
+                    >
+                        <div className="relative w-64 h-64 mb-6">
+                            <Image
+                                src="/images/workout.png"
+                                alt="Workout Illustration"
+                                fill
+                                style={{ objectFit: 'contain' }}
+                                priority
+                            />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2 text-primary">Ready to Sweat?</h3>
+                        <p className="max-w-sm">Configure your schedule and missed workouts to generate a personalized adaptive plan just for you.</p>
+                    </motion.div>
                 )}
             </div>
-        </div>
+        </motion.div>
     )
 }
