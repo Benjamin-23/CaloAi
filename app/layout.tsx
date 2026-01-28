@@ -30,16 +30,31 @@ export const metadata: Metadata = {
   },
 }
 
+import { Navigation } from "@/components/navigation"
+import { ThemeProvider } from "@/components/theme-provider"
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased`}>
-        {children}
-        <Analytics />
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans antialiased bg-background text-foreground`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="flex min-h-screen">
+            <Navigation />
+            <main className="flex-1 md:pl-64">
+              {children}
+            </main>
+          </div>
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   )

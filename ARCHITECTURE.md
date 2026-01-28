@@ -127,7 +127,7 @@ Prompt Engineering (customized per recommendation type)
 generateObject() [AI SDK]
       │
       ▼
-Gemini 2.0 Flash API Call
+Gemini 3 Flash Preview API Call
       │
       ▼
 Structured Output (recommendationSchema)
@@ -162,7 +162,7 @@ generateSleepPlan(userProfile)        // Evening routine + sleep tips
 // Core implementation
 async function generateRecommendation(prompt: string) {
   return generateObject({
-    model: google('gemini-2.0-flash'),
+    model: google('gemini-3-flash-preview'),
     schema: recommendationSchema,
     prompt: customizedPrompt,
   });
@@ -234,7 +234,7 @@ async function evaluateRecommendation(
   
   // 2. Call Gemini with evaluation schema
   const result = await generateObject({
-    model: google('gemini-2.0-flash'),
+    model: google('gemini-3-flash-preview'),
     schema: evaluationSchema,
     prompt: prompt,
   });
@@ -424,7 +424,7 @@ Returns:
 ## Gemini Integration
 
 ### Model Selection
-- **Model**: `gemini-2.0-flash` (latest fast model)
+- **Model**: `gemini-3-flash-preview` (latest fast model)
 - **Reason**: Ideal balance of speed and quality for structured outputs
 - **Rate Limits**: Standard Vercel AI Gateway limits apply
 
@@ -434,7 +434,7 @@ Uses AI SDK's `generateObject()` with Zod schemas:
 ```typescript
 // Recommendation generation
 const result = await generateObject({
-  model: google('gemini-2.0-flash'),
+  model: google('gemini-3-flash-preview'),
   schema: recommendationSchema,  // Zod schema
   prompt: customPrompt,
 });
@@ -442,7 +442,7 @@ const result = await generateObject({
 
 // Evaluation
 const eval = await generateObject({
-  model: google('gemini-2.0-flash'),
+  model: google('gemini-3-flash-preview'),
   schema: evaluationSchema,
   prompt: evaluationPrompt,
 });
