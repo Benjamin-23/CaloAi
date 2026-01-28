@@ -8,9 +8,9 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Wellness AI Evaluation System',
-  description: 'Opik-powered AI evaluation and observability for personalized wellness recommendations',
-  generator: 'v0.app',
+  title: 'CaloAI',
+  description: 'CaloAI is a personalized wellness platform that helps you achieve your health and fitness goals.',
+  generator: 'CaloAI',
   icons: {
     icon: [
       {
@@ -31,6 +31,7 @@ export const metadata: Metadata = {
 }
 
 import { Navigation } from "@/components/navigation"
+import { MobileNav } from "@/components/mobile-nav"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export default function RootLayout({
@@ -47,8 +48,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen">
+          <div className="flex min-h-screen relative">
             <Navigation />
+            <div className="md:hidden fixed top-0 left-0 z-50">
+              <MobileNav />
+            </div>
             <main className="flex-1 md:pl-64">
               {children}
             </main>
