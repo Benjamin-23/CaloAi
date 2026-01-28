@@ -108,9 +108,9 @@ export default function Home() {
       <div className="container max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Wellness AI Evaluation System</h1>
+          <h1 className="text-4xl font-bold mb-2">CaloAi - Wellness AI Evaluation System</h1>
           <p className="text-lg text-muted-foreground">
-            Opik-powered personalized wellness recommendations with systematic quality evaluation
+            CaloAi is a wellness AI evaluation system that uses Opik to evaluate and monitor AI-generated wellness recommendations.
           </p>
         </div>
 
@@ -118,8 +118,7 @@ export default function Home() {
         <Alert className="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
           <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <AlertDescription className="text-blue-800 dark:text-blue-200">
-            This system demonstrates Opik's capabilities: LLM-as-Judge evaluation with safety/personalization/feasibility scoring,
-            compliance monitoring with PII detection, multi-variant experiments, and comprehensive tracing.
+            CaloAi is a wellness AI evaluation system that uses Opik to evaluate and monitor AI-generated wellness recommendations.
           </AlertDescription>
         </Alert>
 
