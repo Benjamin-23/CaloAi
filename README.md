@@ -14,7 +14,7 @@ This project was built to demonstrate that **AI reliability is not an accident**
 - **Dynamic Interactions**: Smooth transitions and interactive elements.
 
 ### 2. 🧘 **Personalized Wellness Recommendations**
-Generate AI-powered guidance using Gemini 2.0 Flash:
+Generate AI-powered guidance using Gemini 3.0 Flash:
 - **Workout Plans**: Fitness level-aware routines with modifications.
 - **Meditation Guides**: Stress and goal-aligned guided sessions.
 - **Sleep Optimization**: Evidence-based sleep improvement plans.
@@ -41,7 +41,7 @@ Every recommendation is evaluated across **four dimensions** before being shown 
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
-- **AI Model**: Gemini 2.0 Flash
+- **AI Model**: Gemini 3.0 Flash
 - **Evaluation**: Opik (LLM-as-Judge, Tracing, Experimentation)
 - **UI Component Library**: Shadcn/ui
 - **Styling**: Tailwind CSS v4
