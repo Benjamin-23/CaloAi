@@ -213,7 +213,7 @@ export function RecommendationViewer({ recommendation, evaluation, runId }: Reco
       {evaluation && (
         <Card>
           <CardHeader>
-            <CardTitle>Opik Evaluation Scores</CardTitle>
+            <CardTitle>Quality Evaluation Scores</CardTitle>
             <CardDescription>AI-powered multi-dimensional assessment of recommendation quality</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

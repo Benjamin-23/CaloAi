@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
             detected_state: result.detectedStressState
         });
 
+        await opik.flush();
+
         return NextResponse.json({
             success: true,
             runId,

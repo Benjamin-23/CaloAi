@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
             items_used: nutritionContext.fridgeContents.length
         });
 
+        await opik.flush();
+
         return NextResponse.json({
             success: true,
             runId,

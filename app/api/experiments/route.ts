@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateRecommendationVariants, UserProfile } from '@/lib/wellness-engine';
 import { evaluateRecommendation, aggregateEvaluations } from '@/lib/evaluator';
-import { getOpikClient, OpikRun } from '@/lib/opik';
+import { getOpikClient } from '@/lib/opik';
+import { MCPStore } from '@/lib/mcp-store';
 
 /**
  * Run an Opik experiment comparing multiple recommendation variants
  */
 export async function POST(req: NextRequest) {
   try {
-    const { userProfile, recommendationType, variantCount = 3, experimentName } = await req.json();
+    const { userProfile, recommendationType, variantCount = 3, experimentName, userId } = await req.json();
 
     const opik = getOpikClient();
     const experimentId = `exp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
     // Create experiment in Opik
-    const experiment = opik.createExperiment(
+    const experiment = await opik.createExperiment(
       experimentId,
       experimentName || `${recommendationType} variants`,
       `Comparing ${variantCount} variants of ${recommendationType} recommendations`
@@ -27,7 +28,6 @@ export async function POST(req: NextRequest) {
       variantCount
     );
 
-    const experimentRuns: OpikRun[] = [];
     const evaluatedVariants: any[] = [];
 
     // Evaluate each variant
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       const runId = `variant-${experimentId}-${i}`;
 
       // Start run for this variant
-      const run = opik.startRun(runId, {
+      opik.startRun(runId, {
         variant_index: i,
         experiment_id: experimentId,
         type: recommendationType,
@@ -66,8 +66,6 @@ export async function POST(req: NextRequest) {
         aggregated_scores: aggregated,
       });
 
-      experimentRuns.push(run);
-
       evaluatedVariants.push({
         variant_index: i,
         title: variant.title,
@@ -79,11 +77,11 @@ export async function POST(req: NextRequest) {
           feasibility: evaluations[2].feasibility_score,
         },
         aggregated,
-        pii_detected: evaluations[3].has_pii,
+        pii_detected: evaluations[0].has_pii, // Fixed index
       });
 
       // Add run to experiment
-      opik.addRunToExperiment(experimentId, run);
+      await opik.addRunToExperiment(experimentId, runId);
     }
 
     // Calculate winner (best overall score)
@@ -92,6 +90,19 @@ export async function POST(req: NextRequest) {
       const currentScore =
         (current.scores.safety + current.scores.personalization + current.scores.feasibility) / 3;
       return currentScore > bestScore ? current : best;
+    });
+
+    // Flush all logs to Opik
+    await opik.flush();
+
+    // Persist to Supabase (MCP Store)
+    await MCPStore.saveExperiment({
+      name: experimentName || `${recommendationType} variants`,
+      type: recommendationType,
+      variants: evaluatedVariants,
+      winner_id: winner.variant_index.toString(),
+      opik_experiment_id: experimentId,
+      user_id: userId,
     });
 
     return NextResponse.json(
@@ -110,7 +121,7 @@ export async function POST(req: NextRequest) {
         all_variants: evaluatedVariants,
         opik_data: {
           experiment_id: experimentId,
-          total_runs: experimentRuns.length,
+          total_runs: evaluatedVariants.length,
           created_at: new Date().toISOString(),
         },
       },

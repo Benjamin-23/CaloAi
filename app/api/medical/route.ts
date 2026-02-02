@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
             has_symptoms: medicalContext.symptomLog.length > 0
         });
 
+        await opik.flush();
+
         return NextResponse.json({
             success: true,
             runId,

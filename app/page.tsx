@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { WellnessForm } from '@/components/wellness-form';
 import { RecommendationViewer } from '@/components/recommendation-viewer';
-import { OpikDashboard } from '@/components/opik-dashboard';
-import { AlertCircle, Zap, BarChart3 } from 'lucide-react';
+import AuthForm from '@/components/auth-form';
+import { useAuth } from '@/hooks/use-auth';
+import { MCPStore } from '@/lib/mcp-store';
+import { AlertCircle, Zap, BarChart3, History, User, LogOut, Loader2 } from 'lucide-react';
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -32,12 +34,28 @@ interface RecommendationData {
 }
 
 export default function Home() {
+  const { user, loading: authLoading, signOut } = useAuth();
   const [recommendationType, setRecommendationType] = useState('workout');
   const [loading, setLoading] = useState(false);
   const [recommendationData, setRecommendationData] = useState<RecommendationData | null>(null);
   const [experimentResults, setExperimentResults] = useState<any>(null);
   const [experimentLoading, setExperimentLoading] = useState(false);
+  const [userHistory, setUserHistory] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchHistory = async () => {
+    if (!user) return;
+    setHistoryLoading(true);
+    try {
+      const history = await MCPStore.getUserRecommendations(user.id);
+      setUserHistory(history);
+    } catch (err) {
+      console.error('Failed to fetch history:', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const handleWellnessSubmit = async (userProfile: UserProfile) => {
     setLoading(true);
@@ -53,6 +71,7 @@ export default function Home() {
           userProfile,
           recommendationType,
           evaluateResult: true,
+          userId: user?.id,
         }),
       });
 
@@ -89,6 +108,7 @@ export default function Home() {
           recommendationType,
           variantCount: 3,
           experimentName: `${recommendationType} comparison`,
+          userId: user?.id,
         }),
       });
 
@@ -106,6 +126,29 @@ export default function Home() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 bg-[url('/images/landing.png')] bg-cover bg-center">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+        <div className="relative z-10 w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-2">CaloAi</h1>
+            <p className="text-muted-foreground italic">Your Personal Wellness Companion</p>
+          </div>
+          <AuthForm />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8">
       <motion.div
@@ -115,18 +158,41 @@ export default function Home() {
         className="container max-w-7xl mx-auto px-4"
       >
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">CaloAi - Wellness AI Evaluation System</h1>
-          <p className="text-lg text-muted-foreground">
-            CaloAi is a wellness AI evaluation system that uses Opik to evaluate and monitor AI-generated wellness recommendations.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">CaloAi</h1>
+            <p className="text-lg text-muted-foreground">
+              Wellness AI Evaluation & Observability System
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <div className="flex items-center gap-4 bg-background/50 backdrop-blur-sm p-2 px-4 rounded-full border border-primary/20">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-sm font-medium hidden sm:inline-block">
+                    {user.email?.split('@')[0]}
+                  </span>
+                </div>
+                <Button variant="ghost" size="icon" onClick={signOut} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="hidden md:block">
+                {/* Auth form will be shown in tabs or as a trigger */}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Info Alert */}
         <Alert className="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
           <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <AlertDescription className="text-blue-800 dark:text-blue-200">
-            CaloAi is a wellness AI evaluation system that uses Opik to evaluate and monitor AI-generated wellness recommendations.
+            CaloAi uses advanced LLM evaluation to ensure the safety and personalization of your wellness plans.
           </AlertDescription>
         </Alert>
 
@@ -142,9 +208,63 @@ export default function Home() {
         <Tabs defaultValue="generate" className="w-full">
           <TabsList className="grid w-full grid-cols-1 h-auto md:grid-cols-3 mb-6 gap-2 md:gap-0">
             <TabsTrigger value="generate" className="h-10">Generate Recommendations</TabsTrigger>
+            <TabsTrigger value="history" onClick={fetchHistory} className="h-10">
+              <History className="w-4 h-4 mr-2" /> History
+            </TabsTrigger>
             <TabsTrigger value="experiments" className="h-10">Run Experiments</TabsTrigger>
-            <TabsTrigger value="dashboard" className="h-10">Opik Dashboard</TabsTrigger>
           </TabsList>
+
+          {/* Login Fallback for History */}
+          <TabsContent value="history" className="space-y-6">
+            {!user ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <AuthForm />
+              </div>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Wellness History</CardTitle>
+                  <CardDescription>Review your past searches and AI evaluations</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {historyLoading ? (
+                    <div className="py-20 text-center text-muted-foreground">Loading history...</div>
+                  ) : userHistory.length === 0 ? (
+                    <div className="py-20 text-center text-muted-foreground">
+                      No history found. Try generating a recommendation first!
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userHistory.map((item, idx) => (
+                        <Card key={idx} className="border-primary/10 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => {
+                          setRecommendationData({
+                            recommendation: item.recommendation,
+                            evaluation: { aggregate: item.evaluation },
+                            runId: item.opik_run_id || 'manual-entry'
+                          });
+                          // Switch to generate tab to view
+                          const generateTab = document.querySelector('[value="generate"]') as HTMLElement;
+                          generateTab?.click();
+                        }}>
+                          <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
+                            <div>
+                              <CardTitle className="text-base">{item.recommendation.title}</CardTitle>
+                              <CardDescription className="text-xs">
+                                {new Date(item.created_at).toLocaleDateString()} • {item.recommendation_type}
+                              </CardDescription>
+                            </div>
+                            <div className="text-lg font-bold text-primary">
+                              {item.evaluation.safety_score}%
+                            </div>
+                          </CardHeader>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
           {/* Generate Tab */}
           <TabsContent value="generate" className="space-y-6">
@@ -214,7 +334,7 @@ export default function Home() {
               <CardHeader>
                 <CardTitle>Run Variant Comparison Experiment</CardTitle>
                 <CardDescription>
-                  Compare multiple recommendation variants to find the best approach. Opik will evaluate each variant and identify the winner.
+                  Compare multiple recommendation variants to find the best approach. Our system will evaluate each variant and identify the winner.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -247,7 +367,7 @@ export default function Home() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Experiment Results</CardTitle>
-                      <CardDescription>Opik variant comparison complete</CardDescription>
+                      <CardDescription>Variant comparison complete</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Winner */}
@@ -284,10 +404,9 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Opik Metadata */}
+                      {/* Evaluation Metadata */}
                       <div className="border-t pt-4 text-xs text-muted-foreground">
                         <p>Experiment ID: {experimentResults.experimentId}</p>
-                        <p>Created: {experimentResults.opik_data.created_at}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -297,7 +416,7 @@ export default function Home() {
                       <BarChart3 className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                       <p className="text-muted-foreground mb-2">Run an experiment to compare recommendation variants</p>
                       <p className="text-sm text-muted-foreground">
-                        Opik will generate and evaluate multiple versions to find the best approach for your profile.
+                        Our system will generate and evaluate multiple versions to find the best approach for your profile.
                       </p>
                     </CardContent>
                   </Card>
@@ -306,12 +425,8 @@ export default function Home() {
             </div>
           </TabsContent>
 
-          {/* Dashboard Tab */}
-          <TabsContent value="dashboard" className="space-y-6">
-            <OpikDashboard autoRefresh={true} refreshInterval={3000} />
-          </TabsContent>
         </Tabs>
       </motion.div>
-    </main>
+    </main >
   );
 }

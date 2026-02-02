@@ -13,6 +13,7 @@ const evaluationSchema = z.object({
   feasibility_score: z.number().min(0).max(100).describe('Feasibility (0-100): practical and achievable'),
   compliance_issues: z.array(z.string()).describe('List of detected compliance issues (PII, medical claims, etc)'),
   has_pii: z.boolean().describe('Whether PII was detected'),
+  medical_claims_detected: z.boolean().describe('Whether unsubstantiated medical claims were detected'),
   reasoning: z.string().describe('Detailed reasoning for scores'),
 });
 
@@ -93,6 +94,7 @@ Check for:
       feasibility_score: 0,
       compliance_issues: ['Evaluation failed'],
       has_pii: false,
+      medical_claims_detected: false,
       reasoning: 'Evaluation encountered an error',
     };
   }

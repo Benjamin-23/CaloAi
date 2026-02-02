@@ -44,12 +44,6 @@ const navItems = [
         href: "/medical",
         icon: Stethoscope,
         color: "text-blue-500",
-    },
-    {
-        title: "Opik Monitor",
-        href: "/monitor",
-        icon: Activity,
-        color: "text-orange-500",
     }
 ]
 

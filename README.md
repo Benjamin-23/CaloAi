@@ -2,7 +2,7 @@
 
 ## 🏆 Project Overview
 
-**CaloAi** is a comprehensive demonstration of **Opik-powered evaluation, observability, and experimentation** in an AI-driven wellness recommendation system. It showcases how to systematically measure, monitor, and improve AI application quality in a sensitive domain like health and wellness.
+**CaloAi** is a comprehensive wellness recommendation system that uses **Opik** for advanced observability and evaluation. It leverages tracing and automated assessment to ensure every AI-generated plan is safe, personalized, and effective. Traces and evaluation metrics are seamlessly synced to the [Comet.com / Opik dashboard](https://www.comet.com/site/products/opik/) for real-time monitoring.
 
 This project was built to demonstrate that **AI reliability is not an accident**—it's the result of rigorous evaluation, continuous monitoring, and data-driven experimentation.
 
@@ -28,9 +28,9 @@ Every recommendation is evaluated across **four dimensions** before being shown 
 - **Feasibility Score**: Verifies realistic capability match and time constraints.
 - **Compliance Check**: Automated PII detection and health content validation.
 
-### 4. 🔍 **Real-time Observability with Opik**
-- **Live Dashboard**: View metrics, total runs, and quality scores in real-time.
-- **Run Tracing**: Inspect every step of the AI generation process.
+### 4. 🔍 **Advanced Tracing & Observability**
+- **External Monitoring**: All interactions are traced and evaluated using Opik, with data available on your Comet.com dashboard.
+- **Run Tracing**: Inspect every step of the AI generation process for debugging and quality control.
 - **Compliance Monitoring**: Automatically flag potential PII or safety issues.
 
 ### 5. 🧪 **Systematic Experimentation**
@@ -66,7 +66,7 @@ Visit `http://localhost:3000` to see the app in action.
 ### 3. Try It Out
 1.  **Generate Recommendations**: Fill in your wellness profile and see the AI generate personalized advice with real-time evaluation scores.
 2.  **Run Experiments**: Go to the "Run Experiments" tab to test different AI variants against each other.
-3.  **Monitor Dashboard**: Check the "Opik Dashboard" to see live metrics and traces of your interactions.
+3.  **Monitor Progress**: View detailed traces and historical performance metrics on the Comet.com dashboard.
 
 ## 📂 Project Structure
 
