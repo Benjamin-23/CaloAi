@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { WellnessForm } from '@/components/wellness-form';
 import { RecommendationViewer } from '@/components/recommendation-viewer';
-import { OpikDashboard } from '@/components/opik-dashboard';
 import { AlertCircle, Zap, BarChart3 } from 'lucide-react';
 
 import { motion } from 'framer-motion';
@@ -118,7 +117,7 @@ export default function Home() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">CaloAi - Wellness AI Evaluation System</h1>
           <p className="text-lg text-muted-foreground">
-            CaloAi is a wellness AI evaluation system that uses Opik to evaluate and monitor AI-generated wellness recommendations.
+            CaloAi is a wellness AI evaluation system that provides smart, personalized wellness recommendations based on your goals and health profile.
           </p>
         </div>
 
@@ -126,7 +125,7 @@ export default function Home() {
         <Alert className="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
           <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <AlertDescription className="text-blue-800 dark:text-blue-200">
-            CaloAi is a wellness AI evaluation system that uses Opik to evaluate and monitor AI-generated wellness recommendations.
+            CaloAi uses advanced LLM evaluation to ensure the safety and personalization of your wellness plans.
           </AlertDescription>
         </Alert>
 
@@ -140,10 +139,9 @@ export default function Home() {
 
         {/* Tabs */}
         <Tabs defaultValue="generate" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 h-auto md:grid-cols-3 mb-6 gap-2 md:gap-0">
+          <TabsList className="grid w-full grid-cols-1 h-auto md:grid-cols-2 mb-6 gap-2 md:gap-0">
             <TabsTrigger value="generate" className="h-10">Generate Recommendations</TabsTrigger>
             <TabsTrigger value="experiments" className="h-10">Run Experiments</TabsTrigger>
-            <TabsTrigger value="dashboard" className="h-10">Opik Dashboard</TabsTrigger>
           </TabsList>
 
           {/* Generate Tab */}
@@ -214,7 +212,7 @@ export default function Home() {
               <CardHeader>
                 <CardTitle>Run Variant Comparison Experiment</CardTitle>
                 <CardDescription>
-                  Compare multiple recommendation variants to find the best approach. Opik will evaluate each variant and identify the winner.
+                  Compare multiple recommendation variants to find the best approach. Our system will evaluate each variant and identify the winner.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -247,7 +245,7 @@ export default function Home() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Experiment Results</CardTitle>
-                      <CardDescription>Opik variant comparison complete</CardDescription>
+                      <CardDescription>Variant comparison complete</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Winner */}
@@ -284,10 +282,9 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Opik Metadata */}
+                      {/* Evaluation Metadata */}
                       <div className="border-t pt-4 text-xs text-muted-foreground">
                         <p>Experiment ID: {experimentResults.experimentId}</p>
-                        <p>Created: {experimentResults.opik_data.created_at}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -297,7 +294,7 @@ export default function Home() {
                       <BarChart3 className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                       <p className="text-muted-foreground mb-2">Run an experiment to compare recommendation variants</p>
                       <p className="text-sm text-muted-foreground">
-                        Opik will generate and evaluate multiple versions to find the best approach for your profile.
+                        Our system will generate and evaluate multiple versions to find the best approach for your profile.
                       </p>
                     </CardContent>
                   </Card>
@@ -306,12 +303,8 @@ export default function Home() {
             </div>
           </TabsContent>
 
-          {/* Dashboard Tab */}
-          <TabsContent value="dashboard" className="space-y-6">
-            <OpikDashboard autoRefresh={true} refreshInterval={3000} />
-          </TabsContent>
         </Tabs>
       </motion.div>
-    </main>
+    </main >
   );
 }

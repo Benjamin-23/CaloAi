@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
             adjustment_made: scheduleContext.missedWorkouts > 0
         });
 
+        await opik.flush();
+
         return NextResponse.json({
             success: true,
             runId,

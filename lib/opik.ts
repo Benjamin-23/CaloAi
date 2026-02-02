@@ -1,37 +1,47 @@
+import { Opik, Trace } from 'opik';
+
 /**
  * Opik Integration for Wellness AI System
- * Provides tracing, evaluation, and experiment tracking
+ * Provides tracing, evaluation, and experiment tracking via the official Comet Opik SDK
  */
 
 interface OpikConfig {
   projectName: string;
   apiKey?: string;
-  endpoint?: string;
+  workspaceName?: string;
 }
 
 class OpikClient {
-  private projectName: string;
-  private runs: Map<string, OpikRun> = new Map();
-  private experiments: Map<string, OpikExperiment> = new Map();
+  private opik: Opik;
+  private traces: Map<string, Trace> = new Map();
 
   constructor(config: OpikConfig) {
-    this.projectName = config.projectName;
+    this.opik = new Opik({
+      projectName: config.projectName,
+      apiKey: config.apiKey,
+      workspaceName: config.workspaceName
+    });
   }
 
   /**
-   * Start a new traced run
+   * Start a new traced run (Trace in Opik)
    */
   startRun(runId: string, metadata: Record<string, any> = {}) {
-    const run: OpikRun = {
+    const trace = this.opik.trace({
+      name: runId,
+      metadata
+    });
+    this.traces.set(runId, trace);
+
+    // Return a compatible object for existing API
+    return {
       id: runId,
-      projectName: this.projectName,
+      projectName: this.opik.config.projectName,
       startTime: Date.now(),
       metadata,
       spans: [],
       status: 'running',
     };
-    this.runs.set(runId, run);
-    return run;
   }
 
   /**
@@ -44,115 +54,98 @@ class OpikClient {
     output: Record<string, any>,
     metadata: Record<string, any> = {}
   ) {
-    const run = this.runs.get(runId);
-    if (!run) return;
+    const trace = this.traces.get(runId);
+    if (!trace) return;
 
-    const span: OpikSpan = {
+    const span = trace.span({
       name: spanName,
-      startTime: Date.now(),
       input,
       output,
       metadata,
-    };
-    run.spans.push(span);
+    });
+
+    // In our simplified API, we end the span immediately as it's logged after completion
+    span.end();
   }
 
   /**
    * End a run and calculate metrics
    */
   endRun(runId: string, result?: Record<string, any>) {
-    const run = this.runs.get(runId);
-    if (!run) return;
+    const trace = this.traces.get(runId);
+    if (!trace) return;
 
-    run.status = 'completed';
-    run.endTime = Date.now();
-    run.result = result;
-    return run;
+    if (result) {
+      trace.update({
+        metadata: { result }
+      });
+    }
+
+    trace.end();
+    this.traces.delete(runId);
+
+    return {
+      status: 'completed',
+      endTime: Date.now(),
+      result
+    };
   }
 
   /**
    * Create an experiment for comparing multiple runs
+   * Note: Official Opik SDK requires a dataset for experiments.
+   * We'll use a default dataset if none is relevant.
    */
-  createExperiment(
+  async createExperiment(
     experimentId: string,
     name: string,
     description: string = ''
   ) {
-    const experiment: OpikExperiment = {
-      id: experimentId,
-      name,
-      description,
-      runs: [],
-      createdAt: Date.now(),
-    };
-    this.experiments.set(experimentId, experiment);
-    return experiment;
+    try {
+      // Ensure a dataset exists for the experiment
+      const datasetName = 'wellness-variants';
+      await this.opik.getOrCreateDataset(datasetName);
+
+      const experiment = await this.opik.createExperiment({
+        datasetName,
+        name: name || experimentId,
+        experimentConfig: { description }
+      });
+
+      return {
+        id: experiment.id,
+        name: name || experimentId,
+        description,
+        runs: [],
+        createdAt: Date.now(),
+      };
+    } catch (error) {
+      console.error('[OpikClient] Error creating experiment:', error);
+      // Fallback for non-blocking
+      return { id: experimentId, name, description, runs: [], createdAt: Date.now() };
+    }
   }
 
   /**
    * Add a run to an experiment
    */
-  addRunToExperiment(experimentId: string, run: OpikRun) {
-    const experiment = this.experiments.get(experimentId);
-    if (experiment) {
-      experiment.runs.push(run);
+  async addRunToExperiment(experimentId: string, runId: string) {
+    // In the official SDK, linking runs to experiments is usually done via traces 
+    // and experiment items. For now we log it as a trace property.
+    const trace = this.traces.get(runId);
+    if (trace) {
+      trace.update({
+        metadata: { experiment_id: experimentId }
+      });
     }
   }
 
   /**
-   * Get run data
+   * Flush all logs to Comet.com
    */
-  getRun(runId: string): OpikRun | undefined {
-    return this.runs.get(runId);
+  async flush() {
+    await this.opik.flush();
   }
-
-  /**
-   * Get experiment data
-   */
-  getExperiment(experimentId: string): OpikExperiment | undefined {
-    return this.experiments.get(experimentId);
-  }
-
-  /**
-   * Get all runs
-   */
-  getAllRuns(): OpikRun[] {
-    return Array.from(this.runs.values());
-  }
-
-  /**
-   * Get all experiments
-   */
-  getAllExperiments(): OpikExperiment[] {
-    return Array.from(this.experiments.values());
-  }
-}
-
-export interface OpikSpan {
-  name: string;
-  startTime: number;
-  input: Record<string, any>;
-  output: Record<string, any>;
-  metadata: Record<string, any>;
-}
-
-export interface OpikRun {
-  id: string;
-  projectName: string;
-  startTime: number;
-  endTime?: number;
-  status: 'running' | 'completed' | 'failed';
-  metadata: Record<string, any>;
-  spans: OpikSpan[];
-  result?: Record<string, any>;
-}
-
-export interface OpikExperiment {
-  id: string;
-  name: string;
-  description: string;
-  runs: OpikRun[];
-  createdAt: number;
 }
 
 // Global Opik instance
@@ -161,7 +154,9 @@ let opikInstance: OpikClient | null = null;
 export function getOpikClient(): OpikClient {
   if (!opikInstance) {
     opikInstance = new OpikClient({
-      projectName: 'wellness-ai-evaluation',
+      projectName: process.env.OPIK_PROJECT_NAME || 'wellness-ai-evaluation',
+      apiKey: process.env.OPIK_API_KEY,
+      workspaceName: process.env.OPIK_WORKSPACE_NAME || process.env.OPIK_WORKSPACE
     });
   }
   return opikInstance;

@@ -9,9 +9,10 @@ export async function POST(req: NextRequest) {
 
     const opik = getOpikClient();
     const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const startTime = Date.now();
 
     // Start Opik tracing
-    const run = opik.startRun(runId, {
+    opik.startRun(runId, {
       type: recommendationType,
       userProfile,
       timestamp: new Date().toISOString(),
@@ -81,8 +82,11 @@ export async function POST(req: NextRequest) {
     opik.endRun(runId, {
       recommendation,
       evaluation,
-      quality_score: evaluation?.aggregate.avg_safety_score || 0,
+      quality_score: evaluation?.aggregate?.avg_safety_score || 0,
     });
+
+    // Flush all logs to Opik
+    await opik.flush();
 
     return NextResponse.json(
       {
@@ -92,8 +96,7 @@ export async function POST(req: NextRequest) {
         evaluation,
         trace: {
           run_id: runId,
-          spans_count: run.spans.length + (evaluateResult ? 1 : 0),
-          total_duration_ms: Date.now() - run.startTime,
+          total_duration_ms: Date.now() - startTime,
         },
       },
       { status: 200 }
