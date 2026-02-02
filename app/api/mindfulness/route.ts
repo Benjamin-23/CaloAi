@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateIntervention, StressContext } from '@/lib/mindfulness-engine';
 import { UserProfile } from '@/lib/wellness-engine';
 import { getOpikClient } from '@/lib/opik';
+import { MCPStore } from '@/lib/mcp-store';
 
 export async function POST(req: NextRequest) {
     try {
-        const { userProfile, stressContext } = await req.json();
+        const { userProfile, stressContext, userId } = await req.json();
 
         const opik = getOpikClient();
         const runId = `run-mindfulness-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -35,6 +36,25 @@ export async function POST(req: NextRequest) {
         });
 
         await opik.flush();
+
+        // Persist to Supabase
+        if (result) {
+            await MCPStore.saveRecommendation({
+                user_profile: userProfile,
+                recommendation_type: 'mindfulness_intervention',
+                recommendation: {
+                    title: result.title,
+                    description: result.description,
+                    duration: Math.ceil(result.durationSeconds / 60),
+                    difficulty: 'easy',
+                    instructions: result.steps || [],
+                    safety_warnings: [],
+                    modifications: [`Detected State: ${result.detectedStressState}`]
+                } as any,
+                opik_run_id: runId,
+                user_id: userId,
+            });
+        }
 
         return NextResponse.json({
             success: true,

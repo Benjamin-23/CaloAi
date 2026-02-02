@@ -21,7 +21,7 @@ export interface StoredRecommendation {
     user_profile: UserProfile;
     recommendation_type: string;
     recommendation: WellnessRecommendation;
-    evaluation: EvaluationResult;
+    evaluation?: EvaluationResult;
     opik_run_id?: string;
     user_id?: string;
 }
@@ -43,18 +43,31 @@ export const MCPStore = {
      */
     async saveRecommendation(data: StoredRecommendation) {
         try {
+            const insertData: any = {
+                user_profile: data.user_profile,
+                recommendation_type: data.recommendation_type,
+                recommendation: data.recommendation,
+                opik_run_id: data.opik_run_id,
+                user_id: data.user_id,
+            };
+
+            if (data.evaluation) {
+                insertData.evaluation = data.evaluation;
+            } else {
+                // Default evaluation for items without auto-eval
+                insertData.evaluation = {
+                    safety_score: 100,
+                    personalization_score: 100,
+                    feasibility_score: 100,
+                    compliance_checked: false,
+                    pii_detected: false,
+                    medical_claims_detected: false,
+                };
+            }
+
             const { data: result, error } = await supabase
                 .from('recommendations')
-                .insert([
-                    {
-                        user_profile: data.user_profile,
-                        recommendation_type: data.recommendation_type,
-                        recommendation: data.recommendation,
-                        evaluation: data.evaluation,
-                        opik_run_id: data.opik_run_id,
-                        user_id: data.user_id,
-                    },
-                ])
+                .insert([insertData])
                 .select();
 
             if (error) throw error;

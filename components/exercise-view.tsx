@@ -8,11 +8,13 @@ import { Slider } from "@/components/ui/slider"
 import { UserProfile } from "@/lib/wellness-engine"
 import { ScheduledWorkout, ScheduleContext } from "@/lib/exercise-engine"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useAuth } from "@/hooks/use-auth"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Loader2, Calendar, CheckCircle } from "lucide-react"
 
 export function ExerciseView() {
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [missedWorkouts, setMissedWorkouts] = useState(1)
     const [result, setResult] = useState<ScheduledWorkout | null>(null)
@@ -50,7 +52,8 @@ export function ExerciseView() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userProfile: profile,
-                    scheduleContext
+                    scheduleContext,
+                    userId: user?.id
                 })
             })
 

@@ -11,7 +11,7 @@ import { RecommendationViewer } from '@/components/recommendation-viewer';
 import AuthForm from '@/components/auth-form';
 import { useAuth } from '@/hooks/use-auth';
 import { MCPStore } from '@/lib/mcp-store';
-import { AlertCircle, Zap, BarChart3, History, User, LogOut, Loader2 } from 'lucide-react';
+import { AlertCircle, Zap, BarChart3, History, User, LogOut, Loader2, Brain } from 'lucide-react';
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -234,31 +234,63 @@ export default function Home() {
                       No history found. Try generating a recommendation first!
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {userHistory.map((item, idx) => (
-                        <Card key={idx} className="border-primary/10 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => {
-                          setRecommendationData({
-                            recommendation: item.recommendation,
-                            evaluation: { aggregate: item.evaluation },
-                            runId: item.opik_run_id || 'manual-entry'
-                          });
-                          // Switch to generate tab to view
-                          const generateTab = document.querySelector('[value="generate"]') as HTMLElement;
-                          generateTab?.click();
-                        }}>
-                          <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
-                            <div>
-                              <CardTitle className="text-base">{item.recommendation.title}</CardTitle>
-                              <CardDescription className="text-xs">
-                                {new Date(item.created_at).toLocaleDateString()} • {item.recommendation_type}
-                              </CardDescription>
+                    <div className="space-y-8">
+                      {['workout', 'meditation', 'sleep', 'exercise_schedule', 'medical_plan', 'mindfulness_intervention', 'nutrition_plan'].map((category) => {
+                        const items = userHistory.filter(h =>
+                          h.recommendation_type === category ||
+                          (category === 'workout' && h.recommendation_type === 'workout')
+                        );
+
+                        if (items.length === 0) return null;
+
+                        const categoryLabel = category.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+                        return (
+                          <div key={category} className="space-y-3">
+                            <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2 px-1">
+                              {category === 'workout' && <Zap className="w-4 h-4 text-orange-500" />}
+                              {category === 'meditation' && <Brain className="w-4 h-4 text-pink-500" />}
+                              {category === 'sleep' && <History className="w-4 h-4 text-blue-500" />}
+                              {category === 'exercise_schedule' && <BarChart3 className="w-4 h-4 text-violet-500" />}
+                              {category === 'medical_plan' && <AlertCircle className="w-4 h-4 text-blue-500" />}
+                              {category === 'mindfulness_intervention' && <Brain className="w-4 h-4 text-pink-500" />}
+                              {category === 'nutrition_plan' && <Zap className="w-4 h-4 text-emerald-500" />}
+                              {categoryLabel}
+                            </h3>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                              {items.map((item, idx) => (
+                                <Card key={idx} className="border-primary/10 hover:border-primary/30 transition-all hover:shadow-md cursor-pointer group" onClick={() => {
+                                  setRecommendationData({
+                                    recommendation: item.recommendation,
+                                    evaluation: item.evaluation ? { aggregate: item.evaluation } : null,
+                                    runId: item.opik_run_id || 'manual-entry'
+                                  });
+                                  // Switch to generate tab to view
+                                  const generateTab = document.querySelector('[value="generate"]') as HTMLElement;
+                                  generateTab?.click();
+                                }}>
+                                  <CardHeader className="p-4 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <CardTitle className="text-sm font-bold line-clamp-1 group-hover:text-primary transition-colors">
+                                        {item.recommendation.title}
+                                      </CardTitle>
+                                      {item.evaluation && (
+                                        <div className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                          {item.evaluation.safety_score}%
+                                        </div>
+                                      )}
+                                    </div>
+                                    <CardDescription className="text-[10px] flex items-center justify-between">
+                                      <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                                      <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary font-medium">View Plan →</span>
+                                    </CardDescription>
+                                  </CardHeader>
+                                </Card>
+                              ))}
                             </div>
-                            <div className="text-lg font-bold text-primary">
-                              {item.evaluation.safety_score}%
-                            </div>
-                          </CardHeader>
-                        </Card>
-                      ))}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </CardContent>

@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { UserProfile } from "@/lib/wellness-engine"
 import { StressContext, MindfulnessIntervention } from "@/lib/mindfulness-engine"
+import { useAuth } from "@/hooks/use-auth"
 import { Loader2, Brain, Activity, Volume2, Play, Pause } from "lucide-react"
 
 export function MindfulnessView() {
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
 
     // Simulation Inputs
@@ -53,7 +55,8 @@ export function MindfulnessView() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userProfile: profile,
-                    stressContext: context
+                    stressContext: context,
+                    userId: user?.id
                 })
             })
 

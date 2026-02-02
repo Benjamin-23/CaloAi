@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { UserProfile } from "@/lib/wellness-engine"
 import { MedicalContext, MedicalActionPlan } from "@/lib/medical-engine"
+import { useAuth } from "@/hooks/use-auth"
 import { Loader2, Stethoscope, ClipboardList, AlertCircle, CalendarPlus } from "lucide-react"
 
 export function MedicalView() {
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [symptomLog, setSymptomLog] = useState("")
     const [lastCheckup, setLastCheckup] = useState("2024-01-15")
@@ -41,7 +43,8 @@ export function MedicalView() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userProfile: profile,
-                    medicalContext: context
+                    medicalContext: context,
+                    userId: user?.id
                 })
             })
 
