@@ -20,7 +20,7 @@ export default function AuthForm() {
         setLoading(true);
         try {
             await signInWithMagicLink(email);
-            toast.success('Check your email for the magic link!');
+            toast('Check your email for the magic link!');
         } catch (error) {
             toast.error('Failed to send magic link: ' + (error as any).message);
         } finally {
