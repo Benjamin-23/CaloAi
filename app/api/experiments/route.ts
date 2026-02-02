@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateRecommendationVariants, UserProfile } from '@/lib/wellness-engine';
 import { evaluateRecommendation, aggregateEvaluations } from '@/lib/evaluator';
 import { getOpikClient } from '@/lib/opik';
+import { MCPStore } from '@/lib/mcp-store';
 
 /**
  * Run an Opik experiment comparing multiple recommendation variants
  */
 export async function POST(req: NextRequest) {
   try {
-    const { userProfile, recommendationType, variantCount = 3, experimentName } = await req.json();
+    const { userProfile, recommendationType, variantCount = 3, experimentName, userId } = await req.json();
 
     const opik = getOpikClient();
     const experimentId = `exp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -93,6 +94,16 @@ export async function POST(req: NextRequest) {
 
     // Flush all logs to Opik
     await opik.flush();
+
+    // Persist to Supabase (MCP Store)
+    await MCPStore.saveExperiment({
+      name: experimentName || `${recommendationType} variants`,
+      type: recommendationType,
+      variants: evaluatedVariants,
+      winner_id: winner.variant_index.toString(),
+      opik_experiment_id: experimentId,
+      user_id: userId,
+    });
 
     return NextResponse.json(
       {

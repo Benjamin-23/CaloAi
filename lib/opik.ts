@@ -29,7 +29,9 @@ class OpikClient {
   startRun(runId: string, metadata: Record<string, any> = {}) {
     const trace = this.opik.trace({
       name: runId,
-      metadata
+      input: metadata.input,
+      output: metadata.output,
+      metadata: metadata,
     });
     this.traces.set(runId, trace);
 
