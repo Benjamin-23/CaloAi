@@ -33,6 +33,7 @@ export const metadata: Metadata = {
 import { Navigation } from "@/components/navigation"
 import { MobileNav } from "@/components/mobile-nav"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "sonner"
 
 export default function RootLayout({
   children,
@@ -48,6 +49,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster />
           <div className="flex min-h-screen relative">
             <Navigation />
             <div className="md:hidden fixed top-0 left-0 z-50">

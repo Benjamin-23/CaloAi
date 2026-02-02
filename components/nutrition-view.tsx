@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Slider } from "@/components/ui/slider"
 import { UserProfile } from "@/lib/wellness-engine"
 import { NutritionContext, MealPlan } from "@/lib/nutrition-engine"
+import { useAuth } from "@/hooks/use-auth"
 import { Loader2, Utensils, ShoppingCart, Check } from "lucide-react"
 
 export function NutritionView() {
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [fridgeInput, setFridgeInput] = useState("Eggs, Spinach, Milk, Chicken Breast, Rice, Tomatoes")
     const [mealsToPlan, setMealsToPlan] = useState(3)
@@ -44,7 +46,8 @@ export function NutritionView() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userProfile: profile,
-                    nutritionContext: context
+                    nutritionContext: context,
+                    userId: user?.id
                 })
             })
 
